@@ -6,6 +6,7 @@ import uk.ac.tees.cupcake.home.health.Sex;
 
 /**
  * User Profile class
+ *
  * @author Bradley Hunter <s6263464@live.tees.ac.uk>
  */
 public class UserProfile implements Serializable {
@@ -18,44 +19,50 @@ public class UserProfile implements Serializable {
     private String accountCreated;
     private String bio;
     private String emailAddress;
+    private String token;
 
     private int height;
     private int weight;
 
     private Sex sex;
 
-    public UserProfile(){
+    public UserProfile() {
         // required empty constructor for fire base reflection.
     }
 
-    public UserProfile(String uid, String firstName, String lastName, String profilePictureUrl, String accountCreated, String email){
+    public UserProfile(String uid, String firstName, String lastName, String profilePictureUrl, String accountCreated, String email, String token) {
         this.uid = uid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.profilePictureUrl = profilePictureUrl;
         this.accountCreated = accountCreated;
         this.emailAddress = email;
+        this.token = token;
     }
 
-    public String getBio() { return bio; }
+    public String getBio() {
+        return bio;
+    }
 
     public String getFirstName() {
-        return firstName.substring(0,1).toUpperCase() + firstName.substring(1);
+        return firstName.substring(0, 1).toUpperCase() + firstName.substring(1);
     }
 
     public String getLastName() {
-        return lastName.substring(0,1).toUpperCase() + lastName.substring(1);
+        return lastName.substring(0, 1).toUpperCase() + lastName.substring(1);
     }
 
-    public String getEmailAddress(){
+    public String getEmailAddress() {
         return emailAddress;
     }
 
-    public String getProfilePictureUrl(){
+    public String getProfilePictureUrl() {
         return profilePictureUrl;
     }
 
-    public String getCoverPhotoUrl() { return coverPhotoUrl; }
+    public String getCoverPhotoUrl() {
+        return coverPhotoUrl;
+    }
 
     public String getAccountCreated() {
         return accountCreated;
@@ -87,5 +94,13 @@ public class UserProfile implements Serializable {
 
     public String getUid() {
         return uid;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

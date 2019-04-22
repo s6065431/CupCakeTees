@@ -118,8 +118,10 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                              .set(likeTimeStamp)
                              .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You liked the post", Toast.LENGTH_SHORT).show())
                              .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
-            }
 
+                likeNotifier(post.getUserUid());
+
+            }
             @Override
             public void unLiked(LikeButton likeButton) {
                 // Deletes document removing like
@@ -128,7 +130,17 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                              .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You removed your like", Toast.LENGTH_SHORT).show())
                              .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
             }
+
+            String posterId;
+            // Notifies poster of like
+            public void likeNotifier(String posterId)
+            {
+                //send posterId notification that currentUserUid has liked their post
+
+                System.out.println(currentUserUid + "has liked" + posterId +"'s post");
+            }
         });
+
 
         // Updates Like button Text
         collectionRef.document(currentUserUid)

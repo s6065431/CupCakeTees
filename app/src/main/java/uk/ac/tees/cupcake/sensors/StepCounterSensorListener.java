@@ -62,6 +62,11 @@ public class StepCounterSensorListener implements SensorEventListener {
         context.sendBroadcast(new Intent(ApplicationConstants.STEP_COUNT_BROADCAST_INTENT_ACTION));
         
         referenceStepCount = eventValue;
+
+
+        if(storedSteps == 10000){
+            //notification - you have reached 10000 steps wow
+        }
     }
     
     @Override
