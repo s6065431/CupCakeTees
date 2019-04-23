@@ -1,8 +1,10 @@
 package uk.ac.tees.cupcake.feed;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -41,6 +43,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
 
     private final List<Post> posts;
     private PopupWindow mDropdown;
+    private Context context;
 
     public FeedAdapter(List<Post> posts) {
         this.posts = posts;
@@ -135,7 +138,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             // Notifies poster of like
             public void likeNotifier(String posterId)
             {
-                //send posterId notification that currentUserUid has liked their post
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(context)
+                                .setSmallIcon(R.drawable.ic_search_icon)
+                                .setContentTitle("Your post has been liked")
+                                .setContentText(currentUserUid + "has liked your post");
+                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+                //if (userToken == posterId.userToken)
+                //notificationManager.notify(0, mBuilder.build()));
 
                 System.out.println(currentUserUid + "has liked" + posterId +"'s post");
             }
