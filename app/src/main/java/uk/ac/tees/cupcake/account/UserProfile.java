@@ -19,7 +19,6 @@ public class UserProfile implements Serializable {
     private String accountCreated;
     private String bio;
     private String emailAddress;
-    private String token;
     private boolean privateProfile;
     private int height;
     private int weight;
@@ -30,14 +29,14 @@ public class UserProfile implements Serializable {
         // required empty constructor for fire base reflection.
     }
 
-    public UserProfile(String uid, String firstName, String lastName, String profilePictureUrl, String accountCreated, String email, String token) {
+    public UserProfile(String uid, String firstName, String lastName, String profilePictureUrl, String accountCreated, String email, boolean privateProfile){
         this.uid = uid;
         this.firstName = firstName;
         this.lastName = lastName;
         this.profilePictureUrl = profilePictureUrl;
         this.accountCreated = accountCreated;
         this.emailAddress = email;
-        this.token = token;
+        this.privateProfile = privateProfile;
     }
 
     public String getBio() {
@@ -100,13 +99,6 @@ public class UserProfile implements Serializable {
         return uid;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
     public boolean isPrivateProfile() {
         return privateProfile;
     }

@@ -20,6 +20,7 @@ import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
@@ -27,6 +28,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.like.LikeButton;
 import com.like.OnLikeListener;
 import com.squareup.picasso.Picasso;
@@ -71,8 +73,8 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         Post post = posts.get(position);
 
         String currentUserUid = FirebaseAuth.getInstance()
-                .getCurrentUser()
-                .getUid();
+                                            .getCurrentUser()
+                                            .getUid();
 
         // Reference to current post likes collection
         CollectionReference collectionRef = FirebaseFirestore.getInstance().collection("Users/" + post.getUserUid() + "/User Posts/" + post.getPostId() + "/Likes");
@@ -85,45 +87,46 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
 
         // Set values
         FirebaseFirestore.getInstance()
-                .collection("Users")
-                .document(post.getUserUid())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    UserProfile profile = documentSnapshot.toObject(UserProfile.class);
+                         .collection("Users")
+                         .document(post.getUserUid())
+                         .get()
+                         .addOnSuccessListener(documentSnapshot -> {
+                             UserProfile profile = documentSnapshot.toObject(UserProfile.class);
 
-                    String profileName = profile.getFirstName() + " " + profile.getLastName();
-                    holder.postProfileNameTextView.setText(profileName);
+                             String profileName = profile.getFirstName() + " " + profile.getLastName();
+                             holder.postProfileNameTextView.setText(profileName);
 
-                    if (profile.getProfilePictureUrl() != null) {
-                        Picasso.with(holder.itemView.getContext())
-                                .load(profile.getProfilePictureUrl())
-                                .into(holder.postProfilePictureImageView);
-                    }
-                });
+                             if (profile.getProfilePictureUrl() != null) {
+                                 Picasso.with(holder.itemView.getContext())
+                                        .load(profile.getProfilePictureUrl())
+                                        .into(holder.postProfilePictureImageView);
+                             }
+                         });
 
         // Set values
         holder.postDescriptionTextView.setText(post.getDescription());
         holder.postDateTextView.setText(ago);
 
-        if(post.getLocationName() != null) {
-            if(!post.getLocationName().equals("")) {
-                holder.postLocationTextView.setText(post.getLocationName());
-            }
-        }
+        String locationText = post.getLocationName().isEmpty() ? "Not Set" : post.getLocationName();
+        holder.postLocationTextView.setText(locationText);
 
         if (post.getImageUrl() != null) {
             Picasso.with(holder.itemView.getContext())
                     .load(post.getImageUrl())
                     .into(holder.postImageImageView);
+        } else{
+            ViewGroup.LayoutParams params = holder.postImageImageView.getLayoutParams();
+            params.height = 0;
+            holder.postImageImageView.setLayoutParams(params);
         }
 
         // Set like button to correct value
         collectionRef.document(currentUserUid)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    boolean value = documentSnapshot.exists();
-                    holder.postLikeButton.setLiked(value);
-                });
+                     .get()
+                     .addOnSuccessListener(documentSnapshot -> {
+                         boolean value = documentSnapshot.exists();
+                         holder.postLikeButton.setLiked(value);
+                     });
 
 
         holder.postLikeButton.setOnLikeListener(new OnLikeListener() {
@@ -137,32 +140,27 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                              .set(likeTimeStamp)
                              .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You liked the post", Toast.LENGTH_SHORT).show())
                              .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
-                        .set(likeTimeStamp)
-                        .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You liked the post", Toast.LENGTH_SHORT).show())
-                        .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
-            }
-
             }
             @Override
             public void unLiked(LikeButton likeButton) {
                 // Deletes document removing like
                 collectionRef.document(currentUserUid)
-                        .delete()
-                        .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You removed your like", Toast.LENGTH_SHORT).show())
-                        .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
+                             .delete()
+                             .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You removed your like", Toast.LENGTH_SHORT).show())
+                             .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
             }
         });
 
         // Updates Like button Text
         collectionRef.document(currentUserUid)
-                .addSnapshotListener((documentSnapshot, e) -> {
-                    if (documentSnapshot == null) {
-                        return;
-                    }
+                     .addSnapshotListener((documentSnapshot, e) -> {
+                         if (documentSnapshot == null) {
+                             return;
+                         }
 
-                    String likeValue = documentSnapshot.exists() ? "Unlike" : "Like";
-                    holder.postLikeButtonTextView.setText(likeValue);
-                });
+                         String likeValue = documentSnapshot.exists() ? "Unlike" : "Like";
+                         holder.postLikeButtonTextView.setText(likeValue);
+                     });
 
         // Gets total amount of likes
         collectionRef.addSnapshotListener((documentSnapshots, e) -> {
@@ -221,13 +219,11 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
         TreeMap<Date, Comments> allPosts = new TreeMap<>();
         ArrayList<Comments> mPosts = new ArrayList<>();
 
-
         holder.postCommentButton.setOnClickListener(v -> {
             if (holder.submitCommentButton.getVisibility() == View.GONE) {
                 holder.submitCommentButton.setVisibility(View.VISIBLE);
                 holder.postCommentRecyclerView.setVisibility(View.VISIBLE);
                 holder.postCommentEditText.setVisibility(View.VISIBLE);
-
 
                 // Initialise
                 RecyclerView recyclerView = holder.postCommentRecyclerView;
@@ -239,8 +235,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
 
                 commentAdapter = new CommentAdapter(mPosts);
                 recyclerView.setAdapter(commentAdapter);
-
-
 
                 collectionRefComment
                         .get()
@@ -259,15 +253,12 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                             commentAdapter.notifyDataSetChanged();
                         });
 
-
-
             } else {
                 holder.submitCommentButton.setVisibility(View.GONE);
                 holder.postCommentRecyclerView.setVisibility(View.GONE);
                 holder.postCommentEditText.setVisibility(View.GONE);
             }
         });
-
 
         holder.submitCommentButton.setOnClickListener(v -> {
             if (!holder.postCommentEditText.getText().toString().isEmpty()) {
@@ -331,12 +322,9 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
 
         private RecyclerView postCommentRecyclerView;
 
-        private Context context;
-
         private Button postCommentButton;
         private Button submitCommentButton;
 
-        private ImageView postLocationImageView;
         private ImageView postImageImageView;
         private ImageView postProfilePictureImageView;
 
@@ -361,7 +349,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             postCommentButton = postView.findViewById(R.id.feed_post_comment_button);
             submitCommentButton = postView.findViewById(R.id.feed_post_comment_area_button);
 
-            postLocationImageView = postView.findViewById(R.id.locationImage);
             postImageImageView = postView.findViewById(R.id.feed_post_image_image_view);
             postProfilePictureImageView = postView.findViewById(R.id.feed_post_profile_picture_image_view);
 
@@ -369,7 +356,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             postLikeButton = postView.findViewById(R.id.post_like_button);
 
             mCurrentUser = FirebaseAuth.getInstance().getCurrentUser();
-            context = postView.getContext();
         }
 
         /**
@@ -382,38 +368,59 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
             postLikesCountTextView.setText(output);
         }
 
+        /**
+         * Deletes all likes within Likes collection, deletes all comments with Comments collection from users post in firestore cloud, and deletes post.
+         */
         private void deletePost(String postId) {
 
             DocumentReference documentRef = FirebaseFirestore.getInstance()
-                    .collection("Users")
-                    .document(mCurrentUser.getUid() + "/User Posts/" + postId);
+                                                             .collection("Users")
+                                                             .document(mCurrentUser.getUid() + "/User Posts/" + postId);
+
             // First deletes all likes from a users post.
             documentRef.collection("Likes")
-                    .get()
-                    .addOnSuccessListener(documentSnapshots -> {
+                       .get()
+                       .addOnSuccessListener(documentSnapshots -> {
 
-                        for (DocumentSnapshot documentSnapshot : documentSnapshots) {
-                            documentSnapshot.getReference().delete();
-                        }
-                    });
+                           for (DocumentSnapshot documentSnapshot : documentSnapshots) {
+                               documentSnapshot.getReference().delete();
+                           }
+                       });
+
+            // Deletes all comments from users post.
+            documentRef.collection("Comments")
+                       .get()
+                       .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                           @Override
+                           public void onSuccess(QuerySnapshot documentSnapshots) {
+
+                               for(DocumentSnapshot documentSnapshot : documentSnapshots){
+                                   documentSnapshot.getReference().delete();
+                               }
+                           }
+                       });
+
             // Deletes Post
             documentRef.delete()
-                    .addOnSuccessListener(aVoid -> Toast.makeText(context, "Post has been removed.", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());
+                    .addOnSuccessListener(aVoid -> Toast.makeText(itemView.getContext(), "Post has been removed.", Toast.LENGTH_SHORT).show())
+                    .addOnFailureListener(e -> Toast.makeText(itemView.getContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
         }
 
+        /**
+         * Adds a report document to the Reports collection with post id and timestamp.
+         */
         private void reportPost(String postId) {
             Map<String, Object> reportTimeStamp = new HashMap<>();
             reportTimeStamp.put("timestamp", FieldValue.serverTimestamp());
 
             FirebaseFirestore.getInstance()
-                    .collection("Reports")
-                    .document(postId)
-                    .collection("Reporters")
-                    .document(mCurrentUser.getUid())
-                    .set(reportTimeStamp)
-                    .addOnSuccessListener(aVoid -> Toast.makeText(context, "You have reported the post.", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e -> Toast.makeText(context, e.getMessage(), Toast.LENGTH_SHORT).show());
+                             .collection("Reports")
+                             .document(postId)
+                             .collection("Reporters")
+                             .document(mCurrentUser.getUid())
+                             .set(reportTimeStamp)
+                             .addOnSuccessListener(aVoid -> Toast.makeText(itemView.getContext(), "You have reported the post.", Toast.LENGTH_SHORT).show())
+                             .addOnFailureListener(e -> Toast.makeText(itemView.getContext(), e.getMessage(), Toast.LENGTH_SHORT).show());
         }
     }
 
