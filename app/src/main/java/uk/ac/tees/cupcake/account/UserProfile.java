@@ -20,7 +20,7 @@ public class UserProfile implements Serializable {
     private String bio;
     private String emailAddress;
     private String token;
-
+    private boolean privateProfile;
     private int height;
     private int weight;
 
@@ -43,6 +43,10 @@ public class UserProfile implements Serializable {
     public String getBio() {
         return bio;
     }
+        this.privateProfile = false;
+    }
+
+    public String getBio() { return bio; }
 
     public String getFirstName() {
         return firstName.substring(0, 1).toUpperCase() + firstName.substring(1);
@@ -102,5 +106,8 @@ public class UserProfile implements Serializable {
 
     public void setToken(String token) {
         this.token = token;
+    }
+    public boolean isPrivateProfile() {
+        return privateProfile;
     }
 }
