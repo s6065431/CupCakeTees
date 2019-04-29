@@ -1,7 +1,9 @@
 package uk.ac.tees.cupcake.feed;
 
+import android.app.NotificationManager;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
@@ -132,11 +134,15 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                 likeTimeStamp.put("timestamp", FieldValue.serverTimestamp());
 
                 collectionRef.document(currentUserUid)
+                             .set(likeTimeStamp)
+                             .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You liked the post", Toast.LENGTH_SHORT).show())
+                             .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
                         .set(likeTimeStamp)
                         .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You liked the post", Toast.LENGTH_SHORT).show())
                         .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
             }
 
+            }
             @Override
             public void unLiked(LikeButton likeButton) {
                 // Deletes document removing like

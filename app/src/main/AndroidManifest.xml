@@ -36,10 +36,18 @@
             android:enabled="true" />
 
         <service
-            android:name=".home.steps.StepCounterResetJobService"
-            android:enabled="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:name=".utils.MyFirebaseInstanceService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
 
+        <service
+            android:name=".home.steps.StepCounterResetJobService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="true" />
+      
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
@@ -70,7 +78,12 @@
             android:name=".login.LoginActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".login.RegisterActivity" />
+        <activity
+            android:name=".login.RegisterActivity">
+
+        </activity>
+
+
         <activity android:name=".login.LostPasswordActivity" />
         <activity
             android:name=".videoplayer.VideoListActivity"

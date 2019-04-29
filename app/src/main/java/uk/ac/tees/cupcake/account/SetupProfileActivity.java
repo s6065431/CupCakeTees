@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.theartofdev.edmodo.cropper.CropImage;
@@ -100,6 +101,9 @@ public class SetupProfileActivity extends AppCompatActivity {
         String firstNameUserInput = firstName.getText().toString().trim();
         String lastNameUserInput = lastName.getText().toString().trim();
 
+        String token = FirebaseInstanceId.getInstance().getToken();
+
+
         String result = validateUserInput(firstNameUserInput, lastNameUserInput);
 
         if(!result.isEmpty()){
@@ -109,7 +113,7 @@ public class SetupProfileActivity extends AppCompatActivity {
 
         String date = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Calendar.getInstance().getTime());
 
-        UserProfile profile = new UserProfile(mAuth.getCurrentUser().getUid(), firstNameUserInput, lastNameUserInput, mProfileImageUrl, date, mAuth.getCurrentUser().getEmail());
+        UserProfile profile = new UserProfile(mAuth.getCurrentUser().getUid(), firstNameUserInput, lastNameUserInput, mProfileImageUrl, date, mAuth.getCurrentUser().getEmail(), token);
 
         startActivity(new Intent(SetupProfileActivity.this, HealthStatsSetupActivity.class)
                 .putExtra("user_profile", profile));
