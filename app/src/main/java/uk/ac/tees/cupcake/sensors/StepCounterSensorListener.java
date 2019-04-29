@@ -1,5 +1,7 @@
 package uk.ac.tees.cupcake.sensors;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,6 +10,8 @@ import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 
 import uk.ac.tees.cupcake.ApplicationConstants;
@@ -35,6 +39,20 @@ public class StepCounterSensorListener implements SensorEventListener {
         this.preferences = context.getSharedPreferences(ApplicationConstants.PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
+    private void createNotificationChannel(){
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            String desc = "Channel description";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("1","step_count_notification_channel", importance);
+            channel.setDescription(desc);
+
+            NotificationManager notificationManager = context.getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+
+        }
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         final int eventValue = (int) event.values[0];
@@ -59,28 +77,30 @@ public class StepCounterSensorListener implements SensorEventListener {
 
             referenceTime = System.currentTimeMillis();
             preferences.edit().putInt("steps", stepCount).apply();
-        } else {
-            firstEvent = false;
-        }
 
-        context.sendBroadcast(new Intent(ApplicationConstants.STEP_COUNT_BROADCAST_INTENT_ACTION));
-
-        referenceStepCount = eventValue;
-
-
-        if (storedSteps == 100) {
+        if (stepCount == 650 || (storedSteps < 650 && stepCount >= 650)) {
             Intent intent = new Intent(context, SensorActivity.class);
             PendingIntent pIntent = PendingIntent.getActivity(context, (int) System.currentTimeMillis(), intent, 0);
 
             NotificationCompat.Builder mBuilder =
-                    new NotificationCompat.Builder(context)
+                    new NotificationCompat.Builder(context, "1")
                             .setSmallIcon(R.drawable.ic_step_counter_icon)
                             .setContentTitle("Step Milestone Reached")
                             .setContentText("You have reached 100 steps, keep it up!")
+                            .setPriority(Notification.PRIORITY_MAX)
                             .setContentIntent(pIntent);
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(0, mBuilder.build());
         }
+
+        } else {
+            firstEvent = false;
+
+            createNotificationChannel();
+        }
+        context.sendBroadcast(new Intent(ApplicationConstants.STEP_COUNT_BROADCAST_INTENT_ACTION));
+
+        referenceStepCount = eventValue;
     }
 
     @Override

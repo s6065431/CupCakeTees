@@ -43,7 +43,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
 
     private final List<Post> posts;
     private PopupWindow mDropdown;
-    private Context context;
 
     public FeedAdapter(List<Post> posts) {
         this.posts = posts;
@@ -122,8 +121,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                              .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You liked the post", Toast.LENGTH_SHORT).show())
                              .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
 
-                likeNotifier(post.getUserUid());
-
             }
             @Override
             public void unLiked(LikeButton likeButton) {
@@ -133,24 +130,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.FeedViewHolder
                              .addOnSuccessListener(aVoid -> Toast.makeText(holder.itemView.getContext(), "You removed your like", Toast.LENGTH_SHORT).show())
                              .addOnFailureListener(e -> Toast.makeText(holder.itemView.getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
             }
-
-            String posterId;
-            // Notifies poster of like
-            public void likeNotifier(String posterId)
-            {
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(context)
-                                .setSmallIcon(R.drawable.ic_search_icon)
-                                .setContentTitle("Your post has been liked")
-                                .setContentText(currentUserUid + "has liked your post");
-                NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-                //if (userToken == posterId.userToken)
-                //notificationManager.notify(0, mBuilder.build()));
-
-                System.out.println(currentUserUid + "has liked" + posterId +"'s post");
-            }
         });
-
 
         // Updates Like button Text
         collectionRef.document(currentUserUid)
